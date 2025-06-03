@@ -1,8 +1,4 @@
-# Re-import necessary libraries and re-create the enhanced ZIP after reset
-import zipfile
 
-# Rebuild the app.py with GO + expression plots
-enhanced_streamlit_code = '''
 # Save this as app.py and run using: streamlit run app.py
 
 import streamlit as st
@@ -95,15 +91,3 @@ st.dataframe(filtered)
 st.download_button("Download Filtered Results", filtered.to_csv(index=False), file_name="filtered_proteins.csv")
 if show_muscle_only:
     st.download_button("Download All Muscle Repair Proteins", muscle_data.to_csv(index=False), file_name="muscle_repair_proteins.csv")
-'''
-
-# Save to app.py
-with open("/mnt/data/app.py", "w") as f:
-    f.write(enhanced_streamlit_code)
-
-# Bundle final ZIP
-final_zip_path = "/mnt/data/Wound_Healing_Dashboard_GO_Enhanced.zip"
-with zipfile.ZipFile(final_zip_path, 'w') as zipf:
-    zipf.write("/mnt/data/app.py", arcname="app.py")
-
-final_zip_path
