@@ -7,8 +7,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 from gprofiler import GProfiler
-from scipy.cluster.hierarchy import linkage, leaves_list
-from scipy.spatial.distance import pdist, squareform
 
 # Load data
 full_data = pd.read_csv("All_Significant_Proteins_Log2FCgt0.58_or_lt_neg0.58_Qlt0.05.csv")
@@ -38,26 +36,24 @@ else:
 
 # App title
 st.title("🧬 Wound Healing Proteomics Dashboard")
-st.markdown("Explore protein regulation across treatments with clustering, expression plots, and GO enrichment.")
+st.markdown("Explore protein regulation with dendrograms, expression plots, and GO enrichment.")
 
-# Clustered heatmap
-st.subheader("📊 Clustered Heatmap of Log2 Fold Changes")
+# Clustered heatmap with dendrograms
+st.subheader("🌳 Dendrogram + Clustered Heatmap")
 pivot = filtered.pivot_table(index="Genes", columns="Comparison (group1/group2)", values="AVG Log2 Ratio")
 
 if not pivot.empty:
-    # Hierarchical clustering for rows and columns using Euclidean distance and average linkage
-    row_linkage = linkage(pdist(pivot.fillna(0), metric='euclidean'), method='average')
-    col_linkage = linkage(pdist(pivot.fillna(0).T, metric='euclidean'), method='average')
-
-    row_order = leaves_list(row_linkage)
-    col_order = leaves_list(col_linkage)
-
-    pivot_clustered = pivot.iloc[row_order, col_order]
-
-    fig, ax = plt.subplots(figsize=(10, min(0.5 * len(pivot_clustered), 20)))
-    sns.heatmap(pivot_clustered, cmap="coolwarm", center=0, annot=True, fmt=".2f", ax=ax, cbar_kws={"label": "Log2FC"})
-    ax.set_title("Hierarchically Clustered Log2FC Heatmap")
-    st.pyplot(fig)
+    cluster_fig = sns.clustermap(
+        pivot.fillna(0),
+        metric="euclidean",
+        method="average",
+        cmap="coolwarm",
+        center=0,
+        annot=True,
+        fmt=".2f",
+        figsize=(10, min(0.5 * len(pivot), 20))
+    )
+    st.pyplot(cluster_fig.fig)
 else:
     st.info("No data to display with current filters.")
 
