@@ -36,9 +36,9 @@ else:
 
 # App title
 st.title("🧬 Wound Healing Proteomics Dashboard")
-st.markdown("Explore protein regulation with dendrograms, expression plots, and GO enrichment.")
+st.markdown("Explore protein regulation with dendrograms, gene expression profiles, and GO enrichment.")
 
-# Clustered heatmap with dendrograms
+# Clustered heatmap with labels and dendrograms
 st.subheader("🌳 Dendrogram + Clustered Heatmap")
 pivot = filtered.pivot_table(index="Genes", columns="Comparison (group1/group2)", values="AVG Log2 Ratio")
 
@@ -51,18 +51,28 @@ if not pivot.empty:
         center=0,
         annot=True,
         fmt=".2f",
-        figsize=(10, min(0.5 * len(pivot), 20))
+        figsize=(10, min(0.5 * len(pivot), 20)),
+        yticklabels=1,
+        xticklabels=1
+    )
+    cluster_fig.ax_heatmap.set_xticklabels(
+        cluster_fig.ax_heatmap.get_xticklabels(),
+        rotation=45,
+        ha='right'
     )
     st.pyplot(cluster_fig.fig)
 else:
     st.info("No data to display with current filters.")
 
-# Gene selector and expression plot
+# Gene selector with links
 if not filtered.empty:
     gene = st.selectbox("Select a gene to view details", sorted(filtered["Genes"].dropna().unique()))
     gene_df = filtered[filtered["Genes"] == gene]
 
     st.subheader(f"🔬 Details for {gene}")
+    gene_link = f"https://www.uniprot.org/uniprotkb/?query={gene}&sort=score"
+    st.markdown(f"[🔗 View {gene} in UniProt]({gene_link})")
+
     st.dataframe(gene_df)
 
     st.subheader("📌 Expression Profile for Selected Gene Across Treatments")
